@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  aum:
+    build: ./aum
+    container_name: aum
+    networks:
+      - default
+    restart: on-failure
+    depends_on:
+      - controller
+    command: ["python", "./aum/main.py"]
+
+  fill:
+    build: ./fill
+    container_name: fill
+    networks:
+      - default
+    restart: on-failure
+    depends_on:
+      - controller
+    command: ["python", "./fill/main.py"]
+
+  controller:
+    build: ./controller
+    container_name: controller
+    networks:
+      - default
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    depends_on:
+      - position
+    command: ["uvicorn", "controller.main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+  position:
+    build: ./position
+    container_name: position
+    networks:
+      - default
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    command: ["uvicorn", "position.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+networks:
+  default: {}
